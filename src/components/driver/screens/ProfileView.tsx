@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../../lib/AuthContext';
 import { Settings, Settings2, CheckCircle2, Fingerprint } from 'lucide-react';
+import { motion } from 'motion/react';
 import { EditableText } from '../../common/EditableText';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../../../lib/firebase';

@@ -3,7 +3,7 @@ import { useAuth } from '../../../lib/AuthContext';
 import { useLanguage } from '../../../lib/LanguageContext';
 import { motion, AnimatePresence } from 'motion/react';
 import { db, handleFirestoreError, OperationType } from '../../../lib/firebase';
-import { collection, query, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, onSnapshot, addDoc, serverTimestamp, where } from 'firebase/firestore';
 import { Filter, Search, Fuel, Zap } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 

@@ -156,47 +156,49 @@ export function DriverDashboard() {
       </AnimatePresence>
 
       <main className="flex-1 overflow-y-auto relative pb-20 lg:pb-0">
-        <header className="sticky top-0 z-40 bg-brand-bg/40 backdrop-blur-md border-b border-brand-border/10 px-4 md:px-8 py-4 md:py-6 flex flex-col items-center sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex flex-col items-center sm:flex-row sm:items-center gap-3 md:gap-4 w-full sm:w-auto">
-            <div className="flex flex-col items-center sm:flex-row sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
-              <button 
-                onClick={() => setIsSidebarOpen(true)}
-                className="lg:hidden p-2 glass rounded-lg shrink-0 flex items-center justify-center"
-              >
-                <Menu className="w-5 h-5 md:w-6 md:h-6" />
-              </button>
-              <div className="min-w-0 flex-1 sm:flex-none">
-                <EditableText 
-                  value={t('dashboard')} 
-                  tagName="h1" 
-                  onSave={(v) => console.log('Saving:', v)} 
-                  className="text-lg md:text-2xl font-bold tracking-tight truncate text-center sm:text-left" 
-                />
-              </div>
+        <header className="sticky top-0 z-40 bg-brand-bg/40 backdrop-blur-md border-b border-brand-border/10 px-4 md:px-8 py-4 md:py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3 md:gap-4 w-full sm:w-auto">
+            <button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="lg:hidden p-2 glass rounded-lg shrink-0 flex items-center justify-center"
+            >
+              <Menu className="w-5 h-5 md:w-6 md:h-6" />
+            </button>
+            <div className="min-w-0 flex-1">
+              <EditableText 
+                value={t('dashboard')} 
+                tagName="h1" 
+                onSave={(v) => console.log('Saving:', v)} 
+                className="text-lg md:text-2xl font-bold tracking-tight truncate text-left" 
+              />
+              <p className="hidden md:block text-brand-text-dim text-[10px] mt-1">Status: <span className="text-green-500 font-bold uppercase tracking-widest ml-1">● Hybrid-Live</span></p>
             </div>
-            <p className="hidden sm:block text-brand-text-dim text-[10px]">Status: <span className="text-green-500 font-bold uppercase tracking-widest ml-1">● Hybrid-Live</span></p>
           </div>
-          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3 sm:gap-6 w-full sm:w-auto pb-1 sm:pb-0">
-            {/* Language Switcher */}
-            <div className="flex bg-brand-sidebar rounded-lg p-1 border border-brand-border shrink-0">
-              {(['en', 'ur', 'sd'] as const).map((lang) => (
-                <button
-                  key={lang}
-                  onClick={() => setLanguage(lang)}
-                  className={cn(
-                    "px-2 sm:px-3 py-1 rounded text-[10px] font-black uppercase tracking-tight transition-all",
-                    language === lang ? "bg-brand-accent text-white" : "text-brand-text-dim hover:text-white"
-                  )}
-                >
-                  {lang}
-                </button>
-              ))}
+          
+          <div className="flex flex-wrap items-center gap-3 sm:gap-6 w-full sm:w-auto">
+            <div className="flex items-center gap-3 sm:gap-6 overflow-x-auto no-scrollbar pb-1 sm:pb-0 w-full sm:w-auto">
+              {/* Language Switcher */}
+              <div className="flex bg-brand-sidebar rounded-lg p-1 border border-brand-border shrink-0">
+                {(['en', 'ur', 'sd'] as const).map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() => setLanguage(lang)}
+                    className={cn(
+                      "px-2 sm:px-3 py-1 rounded text-[10px] font-black uppercase tracking-tight transition-all",
+                      language === lang ? "bg-brand-accent text-white" : "text-brand-text-dim hover:text-white"
+                    )}
+                  >
+                    {lang}
+                  </button>
+                ))}
+              </div>
+              
+              <DashboardControls />
             </div>
-            
-            <DashboardControls />
+
             <NavLink 
               to="/driver/profile"
-              className="flex items-center gap-3 pl-4 sm:pl-6 border-l border-brand-border group hover:opacity-80 transition-all"
+              className="flex items-center gap-3 pl-4 sm:pl-6 border-l border-brand-border group hover:opacity-80 transition-all shrink-0 ml-auto sm:ml-0"
             >
               <div className="mr-3 hidden sm:block">
                 <StatusIndicator />
