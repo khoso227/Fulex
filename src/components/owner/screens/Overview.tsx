@@ -98,16 +98,17 @@ function AntiTheftAlerts() {
   useEffect(() => {
     if (!isActive) return;
     const interval = setInterval(() => {
-      if (Math.random() > 0.95) {
+      // High frequency alerts logic
+      if (Math.random() > 0.92) {
         setAlerts(prev => [{
           id: Date.now(),
-          type: 'Anomalous Flow',
-          msg: `Suspicious flow detected at Nozzle ${Math.floor(Math.random() * 8) + 1}`,
+          type: 'Neural Protocol',
+          msg: `Anomalous discharge flow on Node-X${Math.floor(Math.random() * 99)}`,
           time: 'Just Now',
           severity: 'high'
-        }, ...prev.slice(0, 4)]);
+        }, ...prev.slice(0, 5)]);
       }
-    }, 10000);
+    }, 8000);
     return () => clearInterval(interval);
   }, [isActive]);
 
@@ -455,24 +456,44 @@ export function Overview({ onOpenCalculator }: { onOpenCalculator: () => void })
         </div>
       </header>
 
-      {/* Fuel Filters */}
-      <div className="flex flex-wrap items-center gap-3 mb-10 overflow-x-auto pb-4 no-scrollbar">
-         <span className="text-[10px] font-black uppercase tracking-widest text-brand-text-dim mr-2 shrink-0">Live Filter:</span>
-         {fuelOptions.map((opt) => (
-           <button
-             key={opt.id}
-             onClick={() => toggleFilter(opt.id)}
-             className={cn(
-               "flex items-center gap-3 px-5 py-2.5 rounded-full border transition-all shrink-0 active:scale-95",
-               activeFilters.includes(opt.id) 
-                ? "bg-brand-accent text-white border-brand-accent shadow-lg shadow-brand-accent/20" 
-                : "bg-white/5 text-brand-text-dim border-white/10 hover:border-white/20"
-             )}
+      {/* Performance Meter & Filters */}
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-10">
+        <div className="flex flex-wrap items-center gap-3 overflow-x-auto pb-2 no-scrollbar">
+           <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10 shrink-0">
+             <div className="w-2 h-2 bg-brand-accent rounded-full animate-pulse" />
+             <span className="text-[10px] font-black uppercase tracking-widest text-brand-text">Live Monitoring</span>
+           </div>
+           <div className="h-4 w-px bg-white/10 mx-2 hidden sm:block" />
+           {fuelOptions.map((opt) => (
+             <button
+               key={opt.id}
+               onClick={() => toggleFilter(opt.id)}
+               className={cn(
+                 "flex items-center gap-2.5 px-4 py-2 rounded-full border transition-all shrink-0 active:scale-95",
+                 activeFilters.includes(opt.id) 
+                  ? "bg-brand-accent/20 text-brand-accent border-brand-accent/50 shadow-lg shadow-brand-accent/10" 
+                  : "bg-white/5 text-brand-text-dim border-white/10 hover:border-white/20"
+               )}
+             >
+               <opt.icon className={cn("w-3.5 h-3.5", activeFilters.includes(opt.id) ? "text-brand-accent" : opt.color)} />
+               <span className="text-[9px] font-black uppercase tracking-widest">{opt.label}</span>
+             </button>
+           ))}
+        </div>
+
+        <div className="flex items-center gap-4 justify-between xl:justify-end">
+           <div className="text-right">
+              <div className="text-[9px] font-black uppercase text-brand-text-dim tracking-widest">Network Health</div>
+              <div className="text-xs font-bold text-green-500 uppercase tracking-tighter">99.8% Optimized</div>
+           </div>
+           <button 
+             onClick={() => window.location.reload()}
+             className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all text-brand-text-dim hover:text-brand-accent"
+             title="Synchronize Grid"
            >
-             <opt.icon className={cn("w-4 h-4", activeFilters.includes(opt.id) ? "text-white" : opt.color)} />
-             <span className="text-[10px] font-black uppercase tracking-widest">{opt.label}</span>
+             <Activity className="w-4 h-4" />
            </button>
-         ))}
+        </div>
       </div>
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-10">
