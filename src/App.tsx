@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './lib/AuthContext';
 import { LanguageProvider } from './lib/LanguageContext';
 import { LoginPage } from './components/auth/LoginPage';
@@ -68,11 +68,11 @@ export default function App() {
   return (
     <AuthProvider>
       <LanguageProvider>
-        <BrowserRouter>
+        <Router>
           <div className="min-h-screen font-sans selection:bg-brand-accent selection:text-white">
             <AppContent />
           </div>
-        </BrowserRouter>
+        </Router>
       </LanguageProvider>
     </AuthProvider>
   );
