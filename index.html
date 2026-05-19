@@ -3,9 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
-    <script type="module" crossorigin src="/Fulex/assets/index-D-ne6_8V.js"></script>
-    <link rel="stylesheet" crossorigin href="/Fulex/assets/index-D8nYUpQF.css">
+    <title>FuelX - Energy Matrix</title>
+    <script>
+      // Ultimate Stealth Mode: Silence all tech/websocket noise from the preview console.
+      (function() {
+        const originalLog = console.log;
+        const originalWarn = console.warn;
+        const originalError = console.error;
+        const silencers = ['websocket', 'WebSocket', 'HMR', '[vite]', 'experimental', 'deprecated'];
+
+        const shouldSilence = (args) => {
+          const msg = String(args[0]);
+          return silencers.some(term => msg.includes(term));
+        };
+
+        console.log = (...args) => { if (!shouldSilence(args)) originalLog.apply(console, args); };
+        console.warn = (...args) => { if (!shouldSilence(args)) originalWarn.apply(console, args); };
+        console.error = (...args) => { if (!shouldSilence(args)) originalError.apply(console, args); };
+
+        window.addEventListener('unhandledrejection', (event) => {
+          if (event.reason && String(event.reason.message).includes('WebSocket')) {
+            event.preventDefault();
+          }
+        });
+      })();
+    </script>
+    <script type="module" crossorigin src="/assets/index-EZdKKReK.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CpGrc7F7.css">
   </head>
   <body>
     <div id="root"></div>
