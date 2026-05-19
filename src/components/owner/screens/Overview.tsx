@@ -9,7 +9,11 @@ import {
   AlertTriangle,
   Activity,
   BellRing,
-  Plus
+  Plus,
+  Fuel,
+  Droplet,
+  Battery,
+  Flame
 } from 'lucide-react';
 import { DashboardControls } from '../../common/DashboardControls';
 import { EditableText } from '../../common/EditableText';
@@ -86,8 +90,9 @@ function InventoryTank({ label, field, level, capacity, color, onLevelChange }: 
 function AntiTheftAlerts() {
   const [isActive, setIsActive] = useState(true);
   const [alerts, setAlerts] = useState([
-    { id: 1, type: 'Discrepancy', msg: 'Nozzle 4 discharge mismatch vs POS (+0.4L)', time: '12m ago', severity: 'medium' },
-    { id: 2, type: 'Pressure Drop', msg: 'Tank B unexpected pressure drop detected', time: '1h ago', severity: 'high' },
+    { id: 1, type: 'Anomalous Flow', msg: 'Suspicious flow detected at Nozzle 8', time: 'Just Now', severity: 'high' },
+    { id: 2, type: 'Discrepancy', msg: 'Nozzle 4 discharge mismatch vs POS (+0.4L)', time: '12m ago', severity: 'medium' },
+    { id: 3, type: 'Pressure Drop', msg: 'Tank B unexpected pressure drop detected', time: '1h ago', severity: 'high' },
   ]);
 
   useEffect(() => {
@@ -107,47 +112,59 @@ function AntiTheftAlerts() {
   }, [isActive]);
 
   return (
-    <div className={cn("glass rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8 border-red-500/10 transition-all", !isActive && "opacity-60")}>
-      <div className="flex items-center justify-between mb-6 md:mb-8">
-        <h3 className="font-bold flex items-center gap-3 text-brand-text italic tracking-tighter uppercase text-xs md:text-sm">
-          <ShieldCheck className={cn("w-4 h-4 md:w-5 md:h-5", isActive ? "text-red-500" : "text-brand-text-dim")} />
+    <div className={cn("glass rounded-[2rem] p-8 border-brand-border/10 transition-all relative overflow-hidden", !isActive && "opacity-60")}>
+      {/* Background Glow */}
+      <div className={cn("absolute -top-10 -right-10 w-32 h-32 blur-[60px] rounded-full transition-all duration-1000", isActive ? "bg-red-500/20" : "bg-transparent")} />
+      
+      <div className="flex items-center justify-between mb-10 relative z-10">
+        <h3 className="font-black flex items-center gap-3 text-brand-text italic tracking-tighter uppercase text-sm">
+          <div className="relative">
+            <ShieldCheck className={cn("w-5 h-5", isActive ? "text-red-500" : "text-brand-text-dim")} />
+            {isActive && <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0, 0.3] }} transition={{ duration: 2, repeat: Infinity }} className="absolute inset-0 bg-red-500 rounded-full" />}
+          </div>
           Anti-Theft AI Guard
         </h3>
-        <button 
-          onClick={() => setIsActive(!isActive)}
-          className={cn(
-            "text-[8px] md:text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border transition-all",
-            isActive ? "bg-red-500 text-white border-red-500 shadow-lg shadow-red-500/20" : "bg-white/5 text-brand-text-dim border-white/10"
-          )}
-        >
-          {isActive ? 'Active' : 'De-active'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => setIsActive(!isActive)}
+            className={cn(
+              "text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-full border transition-all",
+              isActive ? "bg-red-500 text-white border-red-500 shadow-xl shadow-red-500/30" : "bg-white/5 text-brand-text-dim border-white/10"
+            )}
+          >
+            {isActive ? 'Active' : 'Offline'}
+          </button>
+        </div>
       </div>
 
-      <div className="space-y-4 md:space-y-5">
+      <div className="space-y-5 relative z-10">
         {isActive ? (
-          <AnimatePresence>
+          <AnimatePresence mode="popLayout">
             {alerts.slice(0, 3).map(alert => (
               <motion.div 
                 key={alert.id} 
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
-                className="flex gap-4 md:gap-5 p-4 md:p-5 rounded-2xl md:rounded-3xl bg-brand-bg/50 border border-brand-border/10"
+                exit={{ x: 20, opacity: 0 }}
+                className={cn(
+                  "flex gap-5 p-5 rounded-3xl border transition-all",
+                  alert.severity === 'high' ? "bg-red-500/5 border-red-500/10" : "bg-white/5 border-white/5"
+                )}
               >
-                <div className={cn("p-2 md:p-2.5 rounded-xl h-fit shrink-0", alert.severity === 'high' ? "bg-red-500/20 text-red-500" : "bg-yellow-500/20 text-yellow-500")}>
-                  <AlertTriangle className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                <div className={cn("p-2.5 rounded-xl h-fit shrink-0", alert.severity === 'high' ? "bg-red-500/20 text-red-500 animate-pulse" : "bg-yellow-500/20 text-yellow-500")}>
+                  <AlertTriangle className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-brand-text-dim mb-1 md:mb-1.5">{alert.type} » {alert.time}</div>
-                  <p className="text-xs md:text-sm text-brand-text-muted leading-snug font-medium">{alert.msg}</p>
+                  <div className="text-[9px] font-black uppercase tracking-widest text-brand-text-dim mb-1.5">{alert.type} » {alert.time}</div>
+                  <p className="text-sm text-brand-text-muted leading-snug font-bold italic">{alert.msg}</p>
                 </div>
               </motion.div>
             ))}
           </AnimatePresence>
         ) : (
-          <div className="py-10 text-center space-y-2">
-            <ShieldCheck className="w-8 h-8 text-white/5 mx-auto" />
-            <div className="text-[10px] font-black uppercase tracking-widest text-brand-text-dim">Security Layer Offline</div>
+          <div className="py-12 text-center space-y-4 opacity-40">
+            <ShieldCheck className="w-10 h-10 mx-auto" />
+            <div className="text-[10px] font-black uppercase tracking-widest">Neural Link Disconnected</div>
           </div>
         )}
       </div>
@@ -245,6 +262,7 @@ export function Overview({ onOpenCalculator }: { onOpenCalculator: () => void })
   const [station, setStation] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeFilters, setActiveFilters] = useState<string[]>(['petrol', 'diesel', 'ev', 'hydrogen']);
 
   const [prices, setPrices] = useState([
     { id: 1, label: "Petrol", current: 293.4, delta: -2.5 },
@@ -321,12 +339,25 @@ export function Overview({ onOpenCalculator }: { onOpenCalculator: () => void })
     setPrices(prices.map(p => p.id === id ? { ...p, current: val } : p));
   };
 
+  const toggleFilter = (f: string) => {
+    setActiveFilters(prev => 
+      prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f]
+    );
+  };
+
+  const fuelOptions = [
+    { id: 'petrol', label: 'Petrol', icon: Fuel, color: 'text-brand-accent' },
+    { id: 'diesel', label: 'Diesel', icon: Droplet, color: 'text-yellow-500' },
+    { id: 'ev', label: 'Electric', icon: Battery, color: 'text-cyan-500' },
+    { id: 'hydrogen', label: 'Hydrogen', icon: Flame, color: 'text-green-500' },
+  ];
+
   const inventory: { label: string, field: string, level: number, capacity: number, color: string }[] = station ? [
     { label: "Premium Petrol", field: "petrol", level: Number(station.stock?.petrol || 0), capacity: 50000, color: "bg-brand-accent" },
     { label: "Low-Sulfur Diesel", field: "diesel", level: Number(station.stock?.diesel || 0), capacity: 40000, color: "bg-yellow-500" }, 
     { label: "EV Charging Node", field: "ev", level: Number(station.stock?.ev || 0), capacity: 1000, color: "bg-cyan-500" },
     { label: "Hydrogen Hub", field: "hydrogen", level: Number(station.stock?.hydrogen || 0), capacity: 500, color: "bg-green-500" },
-  ].filter(tank => !userData?.fuelPreferences || userData.fuelPreferences.length === 0 || userData.fuelPreferences.includes(tank.field)) : [];
+  ].filter(tank => activeFilters.includes(tank.field)) : [];
 
   if (loading) {
     return (
@@ -423,6 +454,26 @@ export function Overview({ onOpenCalculator }: { onOpenCalculator: () => void })
            </div>
         </div>
       </header>
+
+      {/* Fuel Filters */}
+      <div className="flex flex-wrap items-center gap-3 mb-10 overflow-x-auto pb-4 no-scrollbar">
+         <span className="text-[10px] font-black uppercase tracking-widest text-brand-text-dim mr-2 shrink-0">Live Filter:</span>
+         {fuelOptions.map((opt) => (
+           <button
+             key={opt.id}
+             onClick={() => toggleFilter(opt.id)}
+             className={cn(
+               "flex items-center gap-3 px-5 py-2.5 rounded-full border transition-all shrink-0 active:scale-95",
+               activeFilters.includes(opt.id) 
+                ? "bg-brand-accent text-white border-brand-accent shadow-lg shadow-brand-accent/20" 
+                : "bg-white/5 text-brand-text-dim border-white/10 hover:border-white/20"
+             )}
+           >
+             <opt.icon className={cn("w-4 h-4", activeFilters.includes(opt.id) ? "text-white" : opt.color)} />
+             <span className="text-[10px] font-black uppercase tracking-widest">{opt.label}</span>
+           </button>
+         ))}
+      </div>
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-10">
         {/* Inventory Cluster */}
