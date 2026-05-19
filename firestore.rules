@@ -1,0 +1,111 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 1. Primitive Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isUser(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function getUserData(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data;
+    }
+
+    function isMasterAdmin() {
+      return isSignedIn() && request.auth.token.email == 'khososarang816@gmail.com';
+    }
+
+    function isAdmin() {
+      return isMasterAdmin() || (
+        isSignedIn() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+      );
+    }
+
+    // 2. Validation Helpers
+    function isValidUser(data) {
+      return data.uid == request.auth.uid &&
+             data.role in ['driver', 'owner', 'admin'];
+    }
+
+    function isValidStation(data) {
+      return data.ownerId == request.auth.uid &&
+             data.name is string && data.name.size() < 100 &&
+             data.status in ['active', 'inactive'];
+    }
+
+    // 3. Match Blocks
+    match /users/{userId} {
+      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+    }
+
+    match /stations/{stationId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn() && (
+        resource.data.status == 'active' || 
+        resource.data.ownerId == request.auth.uid || 
+        isMasterAdmin()
+      );
+      allow create: if isSignedIn() && isValidStation(incoming()) && isValidId(stationId);
+      allow update: if isSignedIn() && (
+        isAdmin() || 
+        (existing().ownerId == request.auth.uid && 
+         incoming().ownerId == existing().ownerId)
+      );
+    }
+
+    match /vehicles/{vehicleId} {
+      allow read: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && existing().userId == request.auth.uid && incoming().userId == existing().userId;
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+
+    match /transactions/{transactionId} {
+      allow read: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid && exists(/databases/$(database)/documents/stations/$(incoming().stationId));
+    }
+
+    match /settings/global {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /auditLogs/{logId} {
+      allow list: if isMasterAdmin();
+      allow get: if isAdmin();
+      allow create: if isAdmin() && 
+                    incoming().adminId == request.auth.uid &&
+                    incoming().timestamp == request.time;
+      allow delete: if isMasterAdmin();
+    }
+  }
+}

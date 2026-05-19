@@ -1,0 +1,144 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information and role",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["driver", "owner", "admin"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role", "createdAt"]
+    },
+    "FuelStation": {
+      "title": "Fuel Station",
+      "description": "Details about a fuel or energy station",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "name": { "type": "string" },
+        "location": {
+          "type": "object",
+          "properties": {
+            "lat": { "type": "number" },
+            "lng": { "type": "number" },
+            "address": { "type": "string" }
+          }
+        },
+        "fuelTypes": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "stock": {
+          "type": "object",
+          "properties": {
+            "petrol": { "type": "number" },
+            "diesel": { "type": "number" },
+            "ev": { "type": "number" },
+            "hydrogen": { "type": "number" }
+          }
+        },
+        "rushLevel": { "type": "number", "description": "0-10 scale" },
+        "rating": { "type": "number" },
+        "status": { "type": "string", "enum": ["active", "inactive"] },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "name", "location", "fuelTypes", "stock", "status"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Fuel purchase or charging transaction",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "stationId": { "type": "string" },
+        "amount": { "type": "number" },
+        "fuelType": { "type": "string" },
+        "quantity": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["pending", "completed", "failed"] }
+      },
+      "required": ["userId", "stationId", "amount", "fuelType", "quantity", "timestamp", "status"]
+    },
+    "Vehicle": {
+      "title": "Vehicle",
+      "description": "User's registered vehicle",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "make": { "type": "string" },
+        "model": { "type": "string" },
+        "year": { "type": "number" },
+        "licensePlate": { "type": "string" },
+        "fuelType": { "type": "string" },
+        "currentMileage": { "type": "number" },
+        "averageEfficiency": { "type": "number" }
+      },
+      "required": ["userId", "make", "model", "fuelType"]
+    },
+    "AdminSettings": {
+      "title": "Admin Settings",
+      "description": "Global application settings managed by admins",
+      "type": "object",
+      "properties": {
+        "globalFuelPrices": {
+          "type": "object",
+          "properties": {
+            "petrol": { "type": "number" },
+            "diesel": { "type": "number" },
+            "cng": { "type": "number" },
+            "ev": { "type": "number" },
+            "hydrogen": { "type": "number" }
+          }
+        },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "updatedBy": { "type": "string" }
+      }
+    },
+    "AuditLog": {
+      "title": "Audit Log",
+      "description": "Record of admin actions for security tracking",
+      "type": "object",
+      "properties": {
+        "adminId": { "type": "string" },
+        "adminEmail": { "type": "string" },
+        "action": { "type": "string", "description": "e.g., UPDATE_USER_ROLE, UPDATE_GLOBAL_SETTINGS" },
+        "targetId": { "type": "string", "description": "The ID of the user or setting modified" },
+        "previousValue": { "type": "object" },
+        "newValue": { "type": "object" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["adminId", "action", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/stations/{stationId}": {
+      "schema": "FuelStation",
+      "description": "Fuel and charging stations"
+    },
+    "/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "Fueling transactions"
+    },
+    "/vehicles/{vehicleId}": {
+      "schema": "Vehicle",
+      "description": "Driver vehicles"
+    },
+    "/settings/global": {
+      "schema": "AdminSettings",
+      "description": "Global config"
+    },
+    "/auditLogs/{logId}": {
+      "schema": "AuditLog",
+      "description": "Admin action history"
+    }
+  }
+}

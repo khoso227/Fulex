@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-urdu: "Noto Nastaliq Urdu", serif;
+
+  /* Elegant Dark Palette (Default) */
+  --color-brand-bg: #0F1115;
+  --color-brand-sidebar: #16191E;
+  --color-brand-border: #1E293B;
+  --color-brand-accent: #3B82F6;
+  --color-brand-glass: rgba(26, 29, 36, 0.7);
+  --color-brand-text: #F8FAFC;
+  --color-brand-text-muted: #94A3B8;
+  --color-brand-text-dim: #64748B;
+  --color-brand-glass-border: rgba(45, 55, 72, 0.5);
+}
+
+.light-mode {
+  --color-brand-bg: #FFFFFF;
+  --color-brand-sidebar: #F8FAFC;
+  --color-brand-border: #E2E8F0;
+  --color-brand-accent: #2563EB;
+  --color-brand-glass: rgba(255, 255, 255, 0.95);
+  --color-brand-text: #020617;
+  --color-brand-text-muted: #1E293B;
+  --color-brand-text-dim: #475569;
+  --color-brand-glass-border: rgba(203, 213, 225, 0.5);
+}
+
+.light-mode body {
+  background-color: var(--color-brand-bg);
+  color: var(--color-brand-text);
+}
+
+.light-mode .glass {
+  background: var(--color-brand-glass);
+  border-color: var(--color-brand-glass-border);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+@utility glass {
+  background: var(--color-brand-glass);
+  border: 1px solid var(--color-brand-glass-border);
+  backdrop-filter: blur(12px);
+}
+
+@utility glass-light {
+  background: color-mix(in srgb, var(--color-brand-accent) 5%, transparent);
+  border: 1px solid var(--color-brand-border);
+}
+
+@utility urgent-alert {
+  background: linear-gradient(135deg, #450A0A 0%, #1A1D24 100%);
+  border: 1px solid #7F1D1D;
+}
+
+body {
+  background-color: var(--color-brand-bg);
+  color: var(--color-brand-text);
+  @apply font-sans antialiased;
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+}
+
+/* Optimize selection and interactive items for mobile */
+button, a {
+  @apply select-none active:scale-95 transition-transform duration-200;
+}
+
+@layer base {
+  html {
+     -webkit-text-size-adjust: 100%;
+  }
+}
+
+/* Custom Scrollbar for Dark Mode */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-brand-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-brand-border);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-text-dim);
+}

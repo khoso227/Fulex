@@ -1,0 +1,14 @@
+{
+  "name": "FuelX - Future of Energy & Mobility",
+  "description": "A comprehensive Energy Wallet platform for fuel, EV charging, and hydrogen fuel management. Features portals for Drivers, Pump Owners, and Admins with AI-driven analytics, live stock tracking, and IoT integration.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API",
+    "AI-powered fuel expense tracking",
+    "Real-time fuel pump inventory monitoring",
+    "Multi-portal management system",
+    "EV charging slot booking"
+  ]
+}
