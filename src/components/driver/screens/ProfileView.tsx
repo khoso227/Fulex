@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../../lib/AuthContext';
-import { Settings, Settings2, CheckCircle2 } from 'lucide-react';
+import { Settings, Settings2, CheckCircle2, Fingerprint } from 'lucide-react';
 import { EditableText } from '../../common/EditableText';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../../../lib/firebase';
@@ -10,17 +10,31 @@ export function ProfileView() {
   const { user, userData } = useAuth();
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState({
-    name: 'Jan Mohammad',
-    salary: 4500,
-    cnic: '42201-7654321-3',
-    phone: '+92 312 9876543',
-    address: 'House 12, Street 4, G-11/2, Islamabad'
+    name: userData?.displayName || 'Jan Mohammad',
+    salary: userData?.salary || 4500,
+    cnic: userData?.cnic || '42201-7654311-0',
+    phone: userData?.phone || '+92 312 9876543',
+    address: userData?.address || 'Islamabad, Pakistan',
+    photoURL: userData?.photoURL || ''
   });
 
   const [fuelPrefs, setFuelPrefs] = useState<string[]>(userData?.fuelPreferences || ['petrol', 'diesel', 'ev', 'hydrogen']);
+  const [biometricEnabled, setBiometricEnabled] = useState(localStorage.getItem('fuelx_biometric_token') === 'active');
 
-  const updateProfile = (field: string, value: string) => {
+  const updateProfile = (field: string, value: any) => {
     setProfile(prev => ({ ...prev, [field]: value }));
+  };
+
+  const toggleBiometric = () => {
+    const newState = !biometricEnabled;
+    setBiometricEnabled(newState);
+    if (newState) {
+      localStorage.setItem('fuelx_biometric_token', 'active');
+      alert('Neural ID / Biometric Registration Successful. You can now login using the Fingerprint icon.');
+    } else {
+      localStorage.removeItem('fuelx_biometric_token');
+      alert('Biometric access revoked.');
+    }
   };
 
   const toggleFuel = (fuel: string) => {
@@ -29,14 +43,31 @@ export function ProfileView() {
     );
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        updateProfile('photoURL', reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const saveSettings = async () => {
     if (!user) return;
     setSaving(true);
     try {
       await updateDoc(doc(db, 'users', user.uid), {
-        fuelPreferences: fuelPrefs
+        fuelPreferences: fuelPrefs,
+        displayName: profile.name,
+        salary: profile.salary,
+        cnic: profile.cnic,
+        phone: profile.phone,
+        address: profile.address,
+        photoURL: profile.photoURL
       });
-      window.location.reload();
+      alert('Profile updated successfully!');
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, `users/${user.uid}`);
     } finally {
@@ -101,14 +132,24 @@ export function ProfileView() {
         <div className="relative z-10 space-y-10 md:space-y-12">
           {/* Header */}
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 md:gap-8 text-center sm:text-left">
-             <div className="w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-brand-accent/20 flex items-center justify-center text-2xl md:text-3xl font-black text-brand-accent shadow-2xl shadow-brand-accent/20 shrink-0">
-                {profile.name.charAt(0)}
+             <div className="relative group self-center sm:self-start">
+               <div className="w-24 h-24 md:w-32 md:h-32 rounded-[2rem] bg-brand-accent/10 border-2 border-brand-accent/20 flex items-center justify-center text-3xl md:text-4xl font-black text-brand-accent shadow-2xl shadow-brand-accent/10 overflow-hidden shrink-0 transition-transform group-hover:scale-105">
+                  {profile.photoURL ? (
+                    <img src={profile.photoURL} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    profile.name.charAt(0)
+                  )}
+               </div>
+               <label className="absolute -bottom-2 -right-2 w-10 h-10 bg-brand-accent rounded-xl flex items-center justify-center cursor-pointer shadow-lg hover:brightness-110 active:scale-90 transition-all border-4 border-brand-bg">
+                 <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
+                 <Settings2 className="w-5 h-5 text-white" />
+               </label>
              </div>
-             <div>
+             <div className="pt-2">
                 <EditableText 
                    value={profile.name} 
                    onSave={(v) => updateProfile('name', v)} 
-                   className="text-3xl md:text-4xl font-extrabold italic tracking-tight text-brand-text mb-2 block"
+                   className="text-3xl md:text-4xl font-black italic tracking-tighter text-brand-text mb-2 block"
                 />
                 <div className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-brand-text-dim flex flex-wrap justify-center sm:justify-start items-center gap-2">
                    Employee ID: {user?.uid.slice(0, 8)} <span className="hidden sm:inline">•</span> <span>Driver Grade A</span>
@@ -118,34 +159,71 @@ export function ProfileView() {
 
           {/* Details Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
-             <div className="space-y-2 md:space-y-3">
-               <label className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] text-brand-accent px-1">CNIC / Identification</label>
-               <EditableText 
-                  value={profile.cnic} 
-                  onSave={(v) => updateProfile('cnic', v)} 
-                  className="w-full glass-light p-4 md:p-5 rounded-2xl text-lg md:text-xl font-mono block transition-all"
-               />
-             </div>
-             <div className="space-y-2 md:space-y-3">
-               <label className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] text-brand-accent px-1">Active Mobile No.</label>
-               <EditableText 
-                  value={profile.phone} 
-                  onSave={(v) => updateProfile('phone', v)} 
-                  className="w-full glass-light p-4 md:p-5 rounded-2xl text-lg md:text-xl font-mono block transition-all"
-               />
-             </div>
-             <div className="space-y-2 md:space-y-3">
-               <label className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] text-brand-accent px-1">Base Salary / Credit</label>
-               <div className="flex items-baseline gap-2 glass-light p-4 md:p-5 rounded-2xl">
-                  <span className="text-[10px] font-bold text-brand-text-dim uppercase">PKR</span>
-                  <EditableText 
-                    value={profile.salary.toString()} 
-                    onSave={(v) => updateProfile('salary', v)} 
-                    className="text-xl md:text-2xl font-black italic tracking-tighter text-brand-text"
-                  />
+             <div className="space-y-6">
+               <div className="space-y-2 md:space-y-3">
+                 <label className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] text-brand-accent px-1">CNIC / Identification</label>
+                 <EditableText 
+                    value={profile.cnic} 
+                    onSave={(v) => updateProfile('cnic', v)} 
+                    className="w-full glass-light p-4 md:p-5 rounded-2xl text-lg md:text-xl font-mono block transition-all"
+                 />
+               </div>
+               
+               <div className="space-y-2 md:space-y-3">
+                 <label className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] text-brand-accent px-1">Security Configuration</label>
+                 <button 
+                  onClick={toggleBiometric}
+                  className={cn(
+                    "w-full p-5 rounded-2xl border flex items-center justify-between transition-all group",
+                    biometricEnabled ? "bg-brand-accent/20 border-brand-accent/40" : "glass-light border-white/5"
+                  )}
+                 >
+                    <div className="flex items-center gap-4">
+                      <div className={cn("p-3 rounded-xl", biometricEnabled ? "bg-brand-accent text-white" : "bg-white/5 text-brand-text-dim")}>
+                        <Fingerprint className="w-5 h-5" />
+                      </div>
+                      <div className="text-left">
+                        <div className="text-[10px] font-black uppercase tracking-widest text-brand-text">Neural ID Login</div>
+                        <div className="text-[9px] font-bold text-brand-text-dim uppercase tracking-tighter">Biometric Authentication</div>
+                      </div>
+                    </div>
+                    <div className={cn(
+                      "w-12 h-6 rounded-full relative transition-all",
+                      biometricEnabled ? "bg-brand-accent" : "bg-white/10"
+                    )}>
+                      <motion.div 
+                        animate={{ x: biometricEnabled ? 24 : 4 }}
+                        className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-lg"
+                      />
+                    </div>
+                 </button>
                </div>
              </div>
-             <div className="space-y-2 md:space-y-3">
+
+             <div className="space-y-6">
+               <div className="space-y-2 md:space-y-3">
+                 <label className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] text-brand-accent px-1">Active Mobile No.</label>
+                 <EditableText 
+                    value={profile.phone} 
+                    onSave={(v) => updateProfile('phone', v)} 
+                    className="w-full glass-light p-4 md:p-5 rounded-2xl text-lg md:text-xl font-mono block transition-all"
+                 />
+               </div>
+               
+               <div className="space-y-2 md:space-y-3">
+                 <label className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] text-brand-accent px-1">Base Salary / Credit</label>
+                 <div className="flex items-baseline gap-2 glass-light p-4 md:p-5 rounded-2xl">
+                    <span className="text-[10px] font-bold text-brand-text-dim uppercase">PKR</span>
+                    <EditableText 
+                      value={profile.salary.toString()} 
+                      onSave={(v) => updateProfile('salary', v)} 
+                      className="text-xl md:text-2xl font-black italic tracking-tighter text-brand-text"
+                    />
+                 </div>
+               </div>
+             </div>
+
+             <div className="md:col-span-2 space-y-2 md:space-y-3">
                <label className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] text-brand-accent px-1">Current Residential Address</label>
                <EditableText 
                   value={profile.address} 

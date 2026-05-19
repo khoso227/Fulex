@@ -40,8 +40,8 @@ export function DynamicBackground() {
         className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-[120px]"
       />
 
-      {/* Subtle Noise Texture */}
-      <div className="absolute inset-0 opacity-[0.02] mix-blend-overlay pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+      {/* Subtle Noise Texture - Alternative without external URL if possible */}
+      <div className="absolute inset-0 opacity-[0.01] pointer-events-none bg-white" />
     </div>
   );
 }

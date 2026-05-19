@@ -90,8 +90,8 @@ service cloud.firestore {
     }
 
     match /transactions/{transactionId} {
-      allow read: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
-      allow create: if isSignedIn() && incoming().userId == request.auth.uid && exists(/databases/$(database)/documents/stations/$(incoming().stationId));
+      allow read: if isSignedIn() && (isAdmin() || (resource != null && resource.data.userId == request.auth.uid) || (resource == null));
+      allow create: if isSignedIn() && (isAdmin() || incoming().userId == request.auth.uid); 
     }
 
     match /settings/global {

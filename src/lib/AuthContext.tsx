@@ -8,9 +8,14 @@ interface UserData {
   email: string | null;
   role: 'driver' | 'owner' | 'admin';
   displayName: string | null;
+  photoURL?: string;
   isAdmin?: boolean;
   createdAt: any;
-  fuelPreferences?: string[]; // e.g., ['petrol', 'diesel']
+  fuelPreferences?: string[]; 
+  salary?: number;
+  cnic?: string;
+  phone?: string;
+  address?: string;
 }
 
 interface AuthContextType {
@@ -41,37 +46,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    let unsubscribeDoc: (() => void) | null = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       setUser(user);
       if (user) {
-        try {
-          // Use getDocFromServer to force a fresh network hit in case of proxy/environment issues
-          const userDoc = await getDocFromServer(doc(db, 'users', user.uid));
-          if (userDoc.exists()) {
-            setUserData(userDoc.data() as UserData);
+        setLoading(true);
+        // Start listening to the user document for changes
+        const { onSnapshot } = await import('firebase/firestore');
+        unsubscribeDoc = onSnapshot(doc(db, 'users', user.uid), (docSnap) => {
+          if (docSnap.exists()) {
+            setUserData(docSnap.data() as UserData);
           } else {
             setUserData(null);
           }
-        } catch (error) {
-          handleFirestoreError(error, OperationType.GET, `users/${user.uid}`);
-          // Fallback to regular getDoc if Server fetch fails as a last resort
-          try {
-            const { getDoc } = await import('firebase/firestore');
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            if (userDoc.exists()) {
-              setUserData(userDoc.data() as UserData);
-            }
-          } catch (e) {
-             console.error("Secondary fetch failed", e);
-          }
-        }
+          setLoading(false);
+        }, (error) => {
+          console.error("Firestore snapshot error:", error);
+          setLoading(false);
+        });
       } else {
+        if (unsubscribeDoc) unsubscribeDoc();
         setUserData(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeDoc) unsubscribeDoc();
+    };
   }, []);
 
   const setRole = async (role: 'driver' | 'owner') => {

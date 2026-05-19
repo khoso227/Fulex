@@ -133,7 +133,7 @@ function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (b: boolea
 }
 
 export function DriverDashboard() {
-  const { user } = useAuth();
+  const { user, userData } = useAuth();
   const { language, setLanguage, t } = useLanguage();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSosActive, setIsSosActive] = useState(false);
@@ -156,25 +156,27 @@ export function DriverDashboard() {
       </AnimatePresence>
 
       <main className="flex-1 overflow-y-auto relative pb-20 lg:pb-0">
-        <header className="sticky top-0 z-40 bg-brand-bg/40 backdrop-blur-md border-b border-brand-border/10 px-4 md:px-8 py-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden p-2 glass rounded-lg"
-            >
-              <Menu className="w-6 h-6" />
-            </button>
-            <div>
-              <EditableText 
-                value={t('dashboard')} 
-                tagName="h1" 
-                onSave={(v) => console.log('Saving:', v)} 
-                className="text-xl md:text-2xl font-bold tracking-tight" 
-              />
-              <p className="hidden md:block text-brand-text-dim text-xs mt-1">Status: <span className="text-green-500 font-bold uppercase tracking-widest ml-1">● System Hybrid-Live</span></p>
+        <header className="sticky top-0 z-40 bg-brand-bg/40 backdrop-blur-md border-b border-brand-border/10 px-4 md:px-8 py-4 md:py-6 flex flex-col items-center sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-col items-center sm:flex-row sm:items-center gap-3 md:gap-4 w-full sm:w-auto">
+            <div className="flex flex-col items-center sm:flex-row sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
+              <button 
+                onClick={() => setIsSidebarOpen(true)}
+                className="lg:hidden p-2 glass rounded-lg shrink-0 flex items-center justify-center"
+              >
+                <Menu className="w-5 h-5 md:w-6 md:h-6" />
+              </button>
+              <div className="min-w-0 flex-1 sm:flex-none">
+                <EditableText 
+                  value={t('dashboard')} 
+                  tagName="h1" 
+                  onSave={(v) => console.log('Saving:', v)} 
+                  className="text-lg md:text-2xl font-bold tracking-tight truncate text-center sm:text-left" 
+                />
+              </div>
             </div>
+            <p className="hidden sm:block text-brand-text-dim text-[10px]">Status: <span className="text-green-500 font-bold uppercase tracking-widest ml-1">● Hybrid-Live</span></p>
           </div>
-          <div className="flex items-center gap-3 sm:gap-6">
+          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3 sm:gap-6 w-full sm:w-auto pb-1 sm:pb-0">
             {/* Language Switcher */}
             <div className="flex bg-brand-sidebar rounded-lg p-1 border border-brand-border shrink-0">
               {(['en', 'ur', 'sd'] as const).map((lang) => (
@@ -192,20 +194,28 @@ export function DriverDashboard() {
             </div>
             
             <DashboardControls />
-            <div className="flex items-center gap-3 pl-4 sm:pl-6 border-l border-brand-border">
+            <NavLink 
+              to="/driver/profile"
+              className="flex items-center gap-3 pl-4 sm:pl-6 border-l border-brand-border group hover:opacity-80 transition-all"
+            >
               <div className="mr-3 hidden sm:block">
                 <StatusIndicator />
               </div>
               <div className="text-right hidden sm:block">
-                <div className="text-sm font-bold text-brand-text leading-none mb-1">{user?.displayName || 'Jan Mohammad'}</div>
+                <div className="text-sm font-bold text-brand-text leading-none mb-1 group-hover:text-brand-accent transition-colors">
+                  {userData?.displayName || user?.displayName || 'Jan Mohammad'}
+                </div>
                 <div className="text-[10px] text-brand-text-dim font-bold uppercase tracking-wider">Premium Member</div>
               </div>
-              <img 
-                src={user?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.uid}`} 
-                alt="Avatar" 
-                className="w-10 h-10 rounded-full border border-brand-border"
-              />
-            </div>
+              <div className="relative">
+                <img 
+                  src={userData?.photoURL || user?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.uid}`} 
+                  alt="Avatar" 
+                  className="w-10 h-10 rounded-xl border border-brand-border object-cover"
+                />
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-brand-bg rounded-full" />
+              </div>
+            </NavLink>
           </div>
         </header>
 

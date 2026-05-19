@@ -23,7 +23,7 @@ export function HistoryLog() {
 
   useEffect(() => {
     if (!user) return;
-    const q = query(collection(db, 'transactions'));
+    const q = query(collection(db, 'transactions'), where('userId', '==', user.uid));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setTransactions(data);

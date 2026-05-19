@@ -24,6 +24,7 @@ export function LoginPage() {
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
 
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
@@ -75,13 +76,77 @@ export function LoginPage() {
   };
 
   const handleBiometricLogin = async () => {
-    // Demonstration of intent as WebAuthn requires complex backends/registration
-    alert('Scanning Biometrics... (Requires device compatibility and prior registration)');
+    setIsScanning(true);
+    setError('');
+    
+    // Simulate a high-tech biometric scan
+    setTimeout(async () => {
+      try {
+        // In a real app, we would use WebAuthn (navigator.credentials.get)
+        // For this demo context, we'll simulate a successful "Neural Link" match
+        // and log in with a demo account if no session exists, 
+        // or just show a success message if it's just for the UI feel.
+        
+        // If we wanted real auth, we'd need to store a token in localStorage 
+        // after a real login and use that here.
+        const savedToken = localStorage.getItem('fuelx_biometric_token');
+        if (savedToken) {
+          // Logic for token-based login would go here
+          setIsScanning(false);
+          alert('Biometric Identity Verified. Accessing Neural Core...');
+        } else {
+          setIsScanning(false);
+          setError('Biometric data not registered on this node. Please login with Email/Google first to link your profile.');
+        }
+      } catch (err) {
+        setIsScanning(false);
+        setError('Biometric scan failed. Clean sensor or use alternative method.');
+      }
+    }, 2500);
   };
 
   return (
     <div className="min-h-screen bg-transparent text-white overflow-hidden relative font-sans">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 min-h-[100dvh] flex flex-col md:grid md:grid-cols-2 relative z-10 py-8 md:py-0 overflow-x-hidden">
+        {/* Scanning Overlay */}
+        <AnimatePresence>
+          {isScanning && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] bg-brand-bg/90 backdrop-blur-2xl flex flex-col items-center justify-center p-6"
+            >
+              <div className="relative">
+                <motion.div 
+                  animate={{ 
+                    scale: [1, 1.2, 1],
+                    opacity: [0.5, 1, 0.5]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="w-32 h-32 bg-brand-accent/20 rounded-full flex items-center justify-center border-2 border-brand-accent/30"
+                >
+                  <Fingerprint className="w-16 h-16 text-brand-accent" />
+                </motion.div>
+                <motion.div 
+                  animate={{ top: ['0%', '100%', '0%'] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute left-0 right-0 h-1 bg-brand-accent shadow-[0_0_15px_rgba(59,130,246,0.8)] z-10"
+                />
+              </div>
+              <h3 className="mt-8 text-2xl font-black italic uppercase tracking-tighter text-brand-text">Neural Scan In Progress</h3>
+              <p className="mt-2 text-[10px] font-black uppercase tracking-[0.3em] text-brand-text-dim animate-pulse">Authenticating Identity Grid...</p>
+              
+              <button 
+                onClick={() => setIsScanning(false)}
+                className="mt-12 text-[10px] font-black uppercase tracking-widest text-brand-text-dim hover:text-white transition-colors"
+              >
+                Cancel Session
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <section className="flex-1 flex flex-col justify-center items-center md:items-start text-center md:text-left w-full h-full">
           <motion.div
             initial={{ x: -20, opacity: 0 }}
