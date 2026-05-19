@@ -10,6 +10,7 @@ interface UserData {
   displayName: string | null;
   isAdmin?: boolean;
   createdAt: any;
+  fuelPreferences?: string[]; // e.g., ['petrol', 'diesel']
 }
 
 interface AuthContextType {
@@ -28,7 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [theme, setTheme] = useState<'dark' | 'light'>('light');
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
   useEffect(() => {
     // Sync theme with body class

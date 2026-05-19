@@ -13,6 +13,7 @@ import { DriverDashboard } from './components/driver/DriverDashboard';
 import { OwnerDashboard } from './components/owner/OwnerDashboard';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { LoadingScreen } from './components/ui/LoadingScreen';
+import { DynamicBackground } from './components/ui/DynamicBackground';
 
 function ProtectedRoute({ children, allowedRole }: { children: React.ReactNode, allowedRole?: string }) {
   const { user, userData, loading } = useAuth();
@@ -70,6 +71,7 @@ export default function App() {
       <LanguageProvider>
         <Router>
           <div className="min-h-screen font-sans selection:bg-brand-accent selection:text-white">
+            <DynamicBackground />
             <AppContent />
           </div>
         </Router>

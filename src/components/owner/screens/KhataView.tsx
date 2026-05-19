@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
+import { cn } from '../../../lib/utils';
 import { EditableText } from '../../common/EditableText';
 
 export function KhataView() {
   const [khataUsers, setKhataUsers] = useState([
-    { id: 1, name: 'Sarfaraz Ahmed', balance: 12400, cnic: '42101-1234567-1', phone: '+92 300 1234567', address: 'Plot 42, Block 6, PECHS, Karachi', type: 'Customer' },
-    { id: 2, name: 'Jan Mohammad', balance: 4500, cnic: '42201-7654321-3', phone: '+92 312 9876543', address: 'House 12, Street 4, G-11/2, Islamabad', type: 'Customer' },
-    { id: 3, name: 'Ali Raza', balance: 45000, cnic: '42301-1112223-5', phone: '+92 333 4445556', address: 'Staff Quarters, FuelX Station E-11', type: 'Staff' },
+    { id: 1, name: 'Sarfaraz Ahmed', balance: 12400, limit: 50000, cnic: '42101-1234567-1', phone: '+92 300 1234567', address: 'Plot 42, Block 6, PECHS, Karachi', type: 'Customer' },
+    { id: 2, name: 'Jan Mohammad', balance: 4500, limit: 10000, cnic: '42201-7654321-3', phone: '+92 312 9876543', address: 'House 12, Street 4, G-11/2, Islamabad', type: 'Customer' },
+    { id: 3, name: 'Ali Raza', balance: 95000, limit: 80000, cnic: '42301-1112223-5', phone: '+92 333 4445556', address: 'Staff Quarters, FuelX Station E-11', type: 'Staff' },
   ]);
 
   const updateKhataUser = (id: number, field: string, value: any) => {
@@ -86,20 +87,34 @@ export function KhataView() {
               </div>
             </div>
 
-            <div className="w-full md:w-48 flex flex-col justify-between items-start md:items-end gap-6 pt-6 md:pt-0 border-t md:border-t-0 md:border-l border-brand-border/10 md:pl-8">
+            <div className="w-full md:w-56 flex flex-col justify-between items-start md:items-end gap-6 pt-6 md:pt-0 border-t md:border-t-0 md:border-l border-brand-border/10 md:pl-8">
                <div className="text-left md:text-right w-full">
-                 <span className="text-[8px] md:text-[9px] uppercase font-black text-brand-text-dim block mb-1">Current Ledger</span>
-                 <div className="text-xl md:text-2xl font-black italic tracking-tighter text-brand-accent flex items-baseline gap-1 md:justify-end">
+                 <div className="flex justify-between items-center md:justify-end gap-2 mb-1">
+                   <span className="text-[8px] md:text-[9px] uppercase font-black text-brand-text-dim">Current Ledger</span>
+                   {u.balance > (u.limit || 0) && (
+                     <span className="text-[8px] bg-red-500 text-white px-1.5 py-0.5 rounded font-black animate-pulse">LIMIT BREACH</span>
+                   )}
+                 </div>
+                 <div className={cn(
+                   "text-xl md:text-2xl font-black italic tracking-tighter flex items-baseline gap-1 md:justify-end",
+                   u.balance > (u.limit || 0) ? "text-red-500" : "text-brand-accent"
+                 )}>
                     <span className="text-[8px] md:text-[10px] font-bold not-italic">PKR</span>
                     <EditableText 
                        value={u.balance.toLocaleString()} 
-                       onSave={(v) => updateKhataUser(u.id, 'balance', parseFloat(v) || 0)} 
+                       onSave={(v) => updateKhataUser(u.id, 'balance', parseFloat(v.replace(/,/g, '')) || 0)} 
                     />
+                 </div>
+                 <div className="text-[9px] text-brand-text-dim font-bold mt-1 opacity-50 md:text-right">
+                    Limit: PKR {u.limit?.toLocaleString()}
                  </div>
                </div>
                <div className="flex gap-2 w-full">
-                  <button className="flex-1 py-3 bg-red-500/10 text-red-500 text-[8px] md:text-[9px] font-black uppercase tracking-widest rounded-lg hover:bg-red-500 hover:text-white transition-all active:scale-95">
-                    Report
+                  <button className={cn(
+                    "flex-1 py-3 text-[8px] md:text-[9px] font-black uppercase tracking-widest rounded-lg transition-all active:scale-95",
+                    u.balance > (u.limit || 0) ? "bg-red-500 text-white" : "bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white"
+                  )}>
+                    {u.balance > (u.limit || 0) ? 'Restrict' : 'Report'}
                   </button>
                   <button className="flex-1 py-3 bg-brand-accent text-white text-[8px] md:text-[9px] font-black uppercase tracking-widest rounded-lg hover:brightness-110 transition-all active:scale-95">
                     Settle

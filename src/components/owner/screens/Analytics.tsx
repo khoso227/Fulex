@@ -25,7 +25,7 @@ export function Analytics() {
          <div className="lg:col-span-2 glass p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border-brand-border/10">
             <h3 className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-brand-text-dim mb-6 md:mb-8">Revenue vs Volume (Weekly)</h3>
             <div className="h-80 w-full">
-               <ResponsiveContainer width="100%" height="100%">
+               <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                   <AreaChart data={[
                     { name: 'Mon', rev: 4000, vol: 2400 },
                     { name: 'Tue', rev: 3000, vol: 1398 },

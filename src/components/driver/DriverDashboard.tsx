@@ -18,6 +18,7 @@ import {
   X
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { StatusIndicator } from '../common/StatusIndicator';
 import { EditableText } from '../common/EditableText';
 import { DashboardControls } from '../common/DashboardControls';
 
@@ -39,7 +40,7 @@ function BottomNavbar() {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-brand-bg/90 backdrop-blur-2xl border-t border-brand-border px-4 py-3 flex justify-around items-center z-50 lg:hidden pb-safe">
+    <div className="fixed bottom-0 left-0 right-0 bg-brand-sidebar/80 backdrop-blur-2xl border-t border-brand-border px-4 py-3 flex justify-around items-center z-50 lg:hidden pb-safe">
       {navItems.map((item) => (
         <NavLink
           key={item.to}
@@ -75,7 +76,7 @@ function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (b: boolea
 
   return (
     <aside className={cn(
-      "fixed inset-y-0 left-0 z-[60] bg-brand-sidebar border-r border-brand-border flex flex-col transition-all duration-300 lg:relative lg:translate-x-0 shadow-2xl lg:shadow-none",
+      "fixed inset-y-0 left-0 z-[60] bg-brand-sidebar/40 backdrop-blur-xl border-r border-brand-border/10 flex flex-col transition-all duration-300 lg:relative lg:translate-x-0 shadow-2xl lg:shadow-none",
       isOpen ? "w-64 translate-x-0" : "w-0 -translate-x-full lg:w-20 lg:translate-x-0"
     )}>
       <div className="p-6 flex items-center justify-between border-b border-brand-border lg:border-none">
@@ -139,7 +140,7 @@ export function DriverDashboard() {
   const location = useLocation();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-brand-bg text-brand-text font-sans transition-colors relative">
+    <div className="flex h-screen overflow-hidden bg-transparent text-brand-text font-sans transition-colors relative">
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       
       <AnimatePresence>
@@ -155,7 +156,7 @@ export function DriverDashboard() {
       </AnimatePresence>
 
       <main className="flex-1 overflow-y-auto relative pb-20 lg:pb-0">
-        <header className="sticky top-0 z-40 bg-brand-bg/80 backdrop-blur-md border-b border-brand-border px-4 md:px-8 py-6 flex items-center justify-between">
+        <header className="sticky top-0 z-40 bg-brand-bg/40 backdrop-blur-md border-b border-brand-border/10 px-4 md:px-8 py-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setIsSidebarOpen(true)}
@@ -192,6 +193,9 @@ export function DriverDashboard() {
             
             <DashboardControls />
             <div className="flex items-center gap-3 pl-4 sm:pl-6 border-l border-brand-border">
+              <div className="mr-3 hidden sm:block">
+                <StatusIndicator />
+              </div>
               <div className="text-right hidden sm:block">
                 <div className="text-sm font-bold text-brand-text leading-none mb-1">{user?.displayName || 'Jan Mohammad'}</div>
                 <div className="text-[10px] text-brand-text-dim font-bold uppercase tracking-wider">Premium Member</div>

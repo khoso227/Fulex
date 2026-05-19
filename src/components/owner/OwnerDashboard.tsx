@@ -7,18 +7,22 @@ import {
   Calculator, 
   Users, 
   Settings, 
-  LogOut 
+  LogOut,
+  BrainCircuit
 } from 'lucide-react';
 import { useAuth } from '../../lib/AuthContext';
 import { auth } from '../../lib/firebase';
 import { cn } from '../../lib/utils';
 import { ProfitCalculator } from './ProfitCalculator';
 
+import { StatusIndicator } from '../common/StatusIndicator';
+
 // Screens
 import { Overview } from './screens/Overview';
 import { Analytics } from './screens/Analytics';
 import { KhataView } from './screens/KhataView';
 import { SettingsView } from './screens/SettingsView';
+import { IntelligenceView } from './screens/IntelligenceView';
 
 function NavIcon({ to, icon: Icon, label }: { to: string, icon: any, label: string, key?: React.Key }) {
   const { theme } = useAuth();
@@ -33,7 +37,7 @@ function NavIcon({ to, icon: Icon, label }: { to: string, icon: any, label: stri
       )}
     >
       <Icon className="w-6 h-6" />
-      <div className="absolute left-16 bg-brand-sidebar border border-brand-border text-brand-text px-2 py-1 rounded text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none md:block hidden z-60">
+      <div className="absolute left-16 bg-brand-sidebar/80 backdrop-blur-xl border border-brand-border text-brand-text px-2 py-1 rounded text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none md:block hidden z-60">
         {label}
       </div>
     </NavLink>
@@ -46,13 +50,14 @@ export function OwnerDashboard() {
 
   const navItems = [
     { to: "/owner/overview", icon: LayoutDashboard, label: "Dashboard" },
+    { to: "/owner/intelligence", icon: BrainCircuit, label: "Intelligence" },
     { to: "/owner/analytics", icon: BarChart3, label: "Analytics" },
     { to: "/owner/khata", icon: Users, label: "Khata" },
     { to: "/owner/settings", icon: Settings, label: "Settings" }
   ];
 
   return (
-    <div className="flex h-[100dvh] bg-brand-bg text-brand-text font-sans transition-colors relative overflow-hidden">
+    <div className="flex h-[100dvh] bg-transparent text-brand-text font-sans transition-colors relative overflow-hidden">
       {/* Profit Calculator Modal Overlay */}
       <AnimatePresence>
         {showCalculator && (
@@ -70,7 +75,7 @@ export function OwnerDashboard() {
       </AnimatePresence>
 
       {/* Sidebar - Desktop Only */}
-      <nav className="hidden lg:flex w-24 bg-brand-sidebar border-r border-brand-border flex-col items-center py-8 gap-8 z-50 transition-colors shrink-0">
+      <nav className="hidden lg:flex w-24 bg-brand-sidebar/40 backdrop-blur-md border-r border-brand-border/10 flex-col items-center py-8 gap-8 z-50 transition-colors shrink-0">
         <div className="w-12 h-12 bg-brand-accent rounded-xl flex items-center justify-center mb-10 shrink-0 text-white font-black text-xl">
           F
         </div>
@@ -138,6 +143,9 @@ export function OwnerDashboard() {
       {/* Main Panel */}
       <main className="flex-1 overflow-y-auto px-4 sm:px-6 md:px-10 py-6 md:py-10 custom-scrollbar pb-24 lg:pb-10">
         <div className="max-w-7xl mx-auto">
+          <div className="flex justify-end mb-4">
+            <StatusIndicator />
+          </div>
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
@@ -148,6 +156,7 @@ export function OwnerDashboard() {
             >
               <Routes>
                 <Route path="overview" element={<Overview onOpenCalculator={() => setShowCalculator(true)} />} />
+                <Route path="intelligence" element={<IntelligenceView />} />
                 <Route path="analytics" element={<Analytics />} />
                 <Route path="khata" element={<KhataView />} />
                 <Route path="settings" element={<SettingsView />} />

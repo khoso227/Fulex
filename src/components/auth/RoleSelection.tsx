@@ -22,7 +22,7 @@ export function RoleSelection() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-bg flex flex-col items-center justify-center p-6 md:p-10 text-brand-text text-center font-sans transition-colors overflow-x-hidden">
+    <div className="min-h-screen bg-transparent flex flex-col items-center justify-center p-6 md:p-10 text-brand-text text-center font-sans transition-colors overflow-x-hidden">
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}

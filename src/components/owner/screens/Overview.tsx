@@ -84,12 +84,14 @@ function InventoryTank({ label, field, level, capacity, color, onLevelChange }: 
 }
 
 function AntiTheftAlerts() {
+  const [isActive, setIsActive] = useState(true);
   const [alerts, setAlerts] = useState([
     { id: 1, type: 'Discrepancy', msg: 'Nozzle 4 discharge mismatch vs POS (+0.4L)', time: '12m ago', severity: 'medium' },
     { id: 2, type: 'Pressure Drop', msg: 'Tank B unexpected pressure drop detected', time: '1h ago', severity: 'high' },
   ]);
 
   useEffect(() => {
+    if (!isActive) return;
     const interval = setInterval(() => {
       if (Math.random() > 0.95) {
         setAlerts(prev => [{
@@ -102,37 +104,52 @@ function AntiTheftAlerts() {
       }
     }, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isActive]);
 
   return (
-    <div className="glass rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8 border-red-500/10">
+    <div className={cn("glass rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8 border-red-500/10 transition-all", !isActive && "opacity-60")}>
       <div className="flex items-center justify-between mb-6 md:mb-8">
         <h3 className="font-bold flex items-center gap-3 text-brand-text italic tracking-tighter uppercase text-xs md:text-sm">
-          <ShieldCheck className="w-4 h-4 md:w-5 md:h-5 text-red-500" />
+          <ShieldCheck className={cn("w-4 h-4 md:w-5 md:h-5", isActive ? "text-red-500" : "text-brand-text-dim")} />
           Anti-Theft AI Guard
         </h3>
-        <span className="w-2 h-2 bg-red-500 rounded-full animate-ping" />
+        <button 
+          onClick={() => setIsActive(!isActive)}
+          className={cn(
+            "text-[8px] md:text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border transition-all",
+            isActive ? "bg-red-500 text-white border-red-500 shadow-lg shadow-red-500/20" : "bg-white/5 text-brand-text-dim border-white/10"
+          )}
+        >
+          {isActive ? 'Active' : 'De-active'}
+        </button>
       </div>
 
       <div className="space-y-4 md:space-y-5">
-        <AnimatePresence>
-          {alerts.map(alert => (
-            <motion.div 
-              key={alert.id} 
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              className="flex gap-4 md:gap-5 p-4 md:p-5 rounded-2xl md:rounded-3xl bg-brand-bg/50 border border-brand-border/10"
-            >
-              <div className={cn("p-2 md:p-2.5 rounded-xl h-fit shrink-0", alert.severity === 'high' ? "bg-red-500/20 text-red-500" : "bg-yellow-500/20 text-yellow-500")}>
-                <AlertTriangle className="w-3.5 h-3.5 md:w-4 md:h-4" />
-              </div>
-              <div>
-                <div className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-brand-text-dim mb-1 md:mb-1.5">{alert.type} » {alert.time}</div>
-                <p className="text-xs md:text-sm text-brand-text-muted leading-snug font-medium">{alert.msg}</p>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+        {isActive ? (
+          <AnimatePresence>
+            {alerts.slice(0, 3).map(alert => (
+              <motion.div 
+                key={alert.id} 
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                className="flex gap-4 md:gap-5 p-4 md:p-5 rounded-2xl md:rounded-3xl bg-brand-bg/50 border border-brand-border/10"
+              >
+                <div className={cn("p-2 md:p-2.5 rounded-xl h-fit shrink-0", alert.severity === 'high' ? "bg-red-500/20 text-red-500" : "bg-yellow-500/20 text-yellow-500")}>
+                  <AlertTriangle className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                </div>
+                <div>
+                  <div className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-brand-text-dim mb-1 md:mb-1.5">{alert.type} » {alert.time}</div>
+                  <p className="text-xs md:text-sm text-brand-text-muted leading-snug font-medium">{alert.msg}</p>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        ) : (
+          <div className="py-10 text-center space-y-2">
+            <ShieldCheck className="w-8 h-8 text-white/5 mx-auto" />
+            <div className="text-[10px] font-black uppercase tracking-widest text-brand-text-dim">Security Layer Offline</div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -142,22 +159,31 @@ function LiveNozzleFeed() {
   const [sales, setSales] = useState([
     { nozzle: 4, type: 'Petrol-92', qty: '12.5L', val: 'PKR 3,663', time: '14s ago' },
     { nozzle: 1, type: 'Diesel-LS', qty: '45.0L', val: 'PKR 13,554', time: '38s ago' },
-    { nozzle: 6, type: 'EV-Fast-Ch', qty: '22kWh', val: 'PKR 1,100', time: '1m ago' },
+    { nozzle: 2, type: 'EV-Fast-Ch', qty: '22kWh', val: 'PKR 1,100', time: '1m ago' },
   ]);
 
   useEffect(() => {
     const interval = setInterval(() => {
+      const newNozzle = Math.floor(Math.random() * 8) + 1;
       const newSale = {
-        nozzle: Math.floor(Math.random() * 8) + 1,
+        nozzle: newNozzle,
         type: ['Petrol-92', 'Diesel-LS', 'EV-Fast-Ch', 'Hi-Octane'][Math.floor(Math.random() * 4)],
         qty: `${(Math.random() * 50).toFixed(1)}L`,
         val: `PKR ${(Math.random() * 15000).toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
         time: 'Just Now'
       };
-      setSales(prev => [newSale, ...prev.slice(0, 4)]);
+      
+      setSales(prev => {
+        // Find if nozzle exists, update it, or add new and sort
+        const filtered = prev.filter(s => s.nozzle !== newNozzle);
+        const updated = [...filtered, newSale].sort((a, b) => a.nozzle - b.nozzle);
+        return updated.slice(0, 10); // Keep top 10 sorted nozzles
+      });
     }, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  const sortedSales = [...sales].sort((a, b) => a.nozzle - b.nozzle);
 
   return (
     <div className="mt-8 md:mt-12 glass p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border-brand-border/30">
@@ -167,15 +193,15 @@ function LiveNozzleFeed() {
        </div>
        <div className="space-y-4 font-mono text-[10px] md:text-xs">
           <AnimatePresence>
-            {sales.map((sale, i) => (
+            {sortedSales.map((sale) => (
               <motion.div 
-                key={`${sale.nozzle}-${i}`}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
+                key={sale.nozzle}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
                 className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-brand-text-muted border-b border-brand-border/30 pb-3 last:border-0 transition-colors gap-2 sm:gap-0"
               >
                 <div className="flex justify-between items-center sm:block">
-                  <span className="text-brand-text font-bold tracking-tight">NZ_{sale.nozzle} » {sale.type}</span>
+                  <span className="text-brand-text font-bold tracking-tight uppercase">Nozzle {sale.nozzle} » {sale.type}</span>
                   <span className="sm:hidden text-[9px] uppercase text-brand-text-dim">{sale.time}</span>
                 </div>
                 <div className="flex justify-between items-center sm:contents">
@@ -215,7 +241,7 @@ function PriceControl({ label, current, delta, onPriceChange }: { label: string,
 }
 
 export function Overview({ onOpenCalculator }: { onOpenCalculator: () => void }) {
-  const { user } = useAuth();
+  const { user, userData } = useAuth();
   const [station, setStation] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -300,7 +326,7 @@ export function Overview({ onOpenCalculator }: { onOpenCalculator: () => void })
     { label: "Low-Sulfur Diesel", field: "diesel", level: Number(station.stock?.diesel || 0), capacity: 40000, color: "bg-yellow-500" }, 
     { label: "EV Charging Node", field: "ev", level: Number(station.stock?.ev || 0), capacity: 1000, color: "bg-cyan-500" },
     { label: "Hydrogen Hub", field: "hydrogen", level: Number(station.stock?.hydrogen || 0), capacity: 500, color: "bg-green-500" },
-  ] : [];
+  ].filter(tank => !userData?.fuelPreferences || userData.fuelPreferences.length === 0 || userData.fuelPreferences.includes(tank.field)) : [];
 
   if (loading) {
     return (

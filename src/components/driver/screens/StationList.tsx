@@ -4,12 +4,14 @@ import { Activity, Navigation, Star, Zap, Clock, Fuel } from 'lucide-react';
 import { db, handleFirestoreError, OperationType } from '../../../lib/firebase';
 import { collection, query, onSnapshot, where } from 'firebase/firestore';
 import { cn } from '../../../lib/utils';
+import { useAuth } from '../../../lib/AuthContext';
 
 interface StationListProps {
   filter: string;
 }
 
 export function StationList({ filter }: StationListProps) {
+  const { user, userData } = useAuth();
   const [stations, setStations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -145,12 +147,22 @@ export function StationList({ filter }: StationListProps) {
     }
   ];
 
-  const displayStations = filter === 'All' 
-    ? rawStations 
-    : rawStations.filter(s => s.fuelTypes.some((ft: string) => {
-        const normalizedFilter = filter.toLowerCase().split(' ')[0].split('-')[0];
-        return ft.toLowerCase().includes(normalizedFilter);
-      }));
+  const displayStations = rawStations.filter(station => {
+    // 1. Check if station matches the manual filter from UI (All, Petrol, EV, etc)
+    const matchesManualFilter = filter === 'All' || station.fuelTypes.some((ft: string) => {
+      const normalizedFilter = filter.toLowerCase().split(' ')[0].split('-')[0];
+      return ft.toLowerCase().includes(normalizedFilter);
+    });
+
+    // 2. Check if station matches User Preferences (Persistence)
+    const matchesUserPrefs = !userData?.fuelPreferences || userData.fuelPreferences.length === 0 || 
+      station.fuelTypes.some((ft: string) => {
+        const type = ft.toLowerCase();
+        return userData.fuelPreferences?.some(pref => type.includes(pref));
+      });
+
+    return matchesManualFilter && matchesUserPrefs;
+  });
 
   const [reserving, setReserving] = useState<string | null>(null);
 

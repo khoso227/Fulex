@@ -1,23 +1,23 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { initializeFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import { initializeFirestore, doc, getDocFromServer, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firestore with settings to handle potential proxy issues
+// Modern Offline Persistence (using non-deprecated local cache API)
 export const db = initializeFirestore(app, {
-  experimentalForceLongPolling: true,
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager()
+  })
 }, firebaseConfig.firestoreDatabaseId);
 
 export const auth = getAuth(app);
 
-// Connectivity check as recommended by skill
+// Connectivity check
 async function testConnection() {
   try {
-    console.log("Checking Firestore connection...");
     await getDocFromServer(doc(db, 'test', 'connection'));
-    console.log("Firestore connection test completed.");
   } catch (error: any) {
     if (error?.message?.includes('the client is offline') || error?.code === 'unavailable') {
       console.error("FIREBASE_CONNECTION_ERROR: Could not reach the Firestore backend. This might be a temporary network issue or a configuration error.");

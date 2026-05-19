@@ -80,19 +80,7 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-bg text-white overflow-hidden relative font-sans">
-      {/* Dynamic Grid Background */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none">
-         <svg width="100%" height="100%">
-            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-               <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="1"/>
-            </pattern>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-         </svg>
-      </div>
-
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-brand-accent/5 to-transparent blur-3xl pointer-events-none" />
-
+    <div className="min-h-screen bg-transparent text-white overflow-hidden relative font-sans">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 min-h-[100dvh] flex flex-col md:grid md:grid-cols-2 relative z-10 py-8 md:py-0 overflow-x-hidden">
         <section className="flex-1 flex flex-col justify-center items-center md:items-start text-center md:text-left w-full h-full">
           <motion.div
